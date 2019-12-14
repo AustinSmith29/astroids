@@ -4,8 +4,8 @@
 #include "vector.h"
 
 #define MAX_BULLETS 10
-#define MAX_DISTANCE 1500
-#define SPEED 0.3f	
+#define MAX_DISTANCE 75
+#define SPEED 5.f	
 
 struct Bullet {
 	Vec2 position;

@@ -19,8 +19,11 @@ int main()
 	struct Bullet shipBullets[MAX_BULLETS];
 	int quit = 0;
 	SDL_Event e;
+	const Uint32 FPS = 60;
+
 	while (!quit)
 	{
+		Uint32 ticks = SDL_GetTicks();
 		while( SDL_PollEvent(&e) != 0)
 		{
 			if (e.type == SDL_QUIT) {
@@ -29,15 +32,6 @@ int main()
 			else if (e.type == SDL_KEYDOWN) {
 				switch (e.key.keysym.sym)
 				{
-					case SDLK_UP:
-						shipAccelerate(ship);
-						break;
-					case SDLK_RIGHT:
-						shipRotateRight(ship);
-						break;
-					case SDLK_LEFT:
-						shipRotateLeft(ship);
-						break;
 					case SDLK_SPACE:
 						createBullet(shipBullets,
 							&ship->position,
@@ -45,6 +39,15 @@ int main()
 				}
 			}
 		}
+
+		const Uint8* keyboard_state = SDL_GetKeyboardState(NULL);
+		if (keyboard_state[SDL_SCANCODE_UP])
+			shipAccelerate(ship);
+		if (keyboard_state[SDL_SCANCODE_RIGHT])
+			shipRotateRight(ship);
+		else if (keyboard_state[SDL_SCANCODE_LEFT])
+			shipRotateLeft(ship);
+
 		shipMove(ship, 1.0f);
 		updateBullets(shipBullets);
 		//Clear Screen
@@ -54,6 +57,10 @@ int main()
 		drawShip(ship, 16, renderer);
 		drawBullets(shipBullets, renderer);
 		SDL_RenderPresent(renderer);
+
+		Uint32 time = SDL_GetTicks() - ticks;
+		if (time < (1000 / FPS))
+			SDL_Delay((1000 / FPS) - time);
 	}
 	destroyShip(ship);
 	SDL_Quit();

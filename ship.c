@@ -4,8 +4,8 @@
 #include <stdlib.h>
 
 static const float ROTATE_INC = 3.14159f/12.f;
-static const float ACCELERATE = 0.01f;
-static const float MAX_VELOCITY = 6.0f;
+static const float ACCELERATE = 0.1f;
+static const float MAX_SPEED = 7.0f;
 
 struct Ship *createShip()
 {
@@ -45,8 +45,12 @@ void shipAccelerate(struct Ship *ship)
 
 void shipMove(struct Ship *ship, float deltatime)
 {
-	ship->position = add(&ship->position, &ship->velocity);
 	ship->velocity = add(&ship->acceleration, &ship->velocity);
+	float velocityMag = mag(&(ship->velocity));
+	if (velocityMag >= MAX_SPEED) {
+		ship->velocity = sub(&ship->velocity, &ship->acceleration);
+	}
+	ship->position = add(&ship->position, &ship->velocity);
 	ship->position = mult(&ship->position, deltatime);
 	ship->velocity = mult(&ship->velocity, deltatime);
 	ship->acceleration = createVec2(0.0f, 0.0f);

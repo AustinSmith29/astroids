@@ -13,6 +13,7 @@ void createBullet(struct Bullet *list, const Vec2 *pos, const Vec2 *dir)
 			bullet.alive = 1;
 			bullet.distance = 0;
 			list[i] = bullet;	
+			return;
 		}
 	}
 }
