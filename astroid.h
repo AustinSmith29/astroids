@@ -20,9 +20,10 @@ struct AstroidArray
 	int length;
 };
 
-struct AstroidArray allocate_astroids(int nsmall, int nmedium, int nlarge);
-int get_astroid_colliding_at(int x, int y, const struct AstroidArray* astroids);
-void explode_astroid(int id, const struct AstroidArray* astroids);
-void deallocate_astroids(struct AstroidArray* astroids);
+struct AstroidArray allocateAstroids(int nsmall, int nmedium, int nlarge);
+int getAstroidCollidingAt(int x, int y, const struct AstroidArray* astroids);
+void explodeAstroid(int id, const struct AstroidArray* astroids);
+void updateAstroids(const struct AstroidArray* astroids);
+void deallocateAstroids(struct AstroidArray* astroids);
 
 #endif

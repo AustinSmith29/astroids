@@ -1,7 +1,7 @@
 CFLAGS = -g -Wall
 
-all: main.c render.o ship.o bullet.o astroid.o vector.o
-	gcc $(CFLAGS) -o astroids main.c render.o ship.o bullet.o astroid.o vector.o -lSDL2 -lm
+all: main.c render.o ship.o bullet.o astroid.o vector.o util.o
+	gcc $(CFLAGS) -o astroids main.c render.o ship.o bullet.o astroid.o vector.o util.o -lSDL2 -lm
 
 render.o: 
 	gcc $(CFLAGS) -c render.c
@@ -16,6 +16,9 @@ astroid.o: astroid.c
 
 vector.o: vector.c
 	gcc $(CFLAGS) -c vector.c 
+
+util.o: util.c
+	gcc $(CFLAGS) -c util.c
 
 clean:
 	rm astroids *.o

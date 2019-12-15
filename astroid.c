@@ -1,4 +1,5 @@
 #include "astroid.h"
+#include "util.h"
 
 #include <stdlib.h>
 #include <time.h>
@@ -10,8 +11,9 @@ static const int LARGE_ASTROID_SPEED = 1;
 static void set_random_astroid_start_position(struct Astroid* astroid);
 static void set_random_velocity(struct Astroid* astroid);
 static int is_astroid_colliding_at(int x, int y, const struct Astroid* astroid);
+static Vec2 random_velocity(int max_component);
 
-struct AstroidArray allocate_astroids(int nsmall, int nmedium, int nlarge)
+struct AstroidArray allocateAstroids(int nsmall, int nmedium, int nlarge)
 {
 	// Large astroids become medium astroids which become small astroids.
 	// 1 large becomes 2 medium and 1 medium becomes 3 small.
@@ -27,7 +29,7 @@ struct AstroidArray allocate_astroids(int nsmall, int nmedium, int nlarge)
 		{
 			list[i].type = SMALL;
 			list[i].is_alive = 1;
-			list[i].radius = 10;
+			list[i].radius = 20;
 			set_random_astroid_start_position(&list[i]);
 			set_random_velocity(&list[i]);
 			--nsmall;
@@ -36,7 +38,7 @@ struct AstroidArray allocate_astroids(int nsmall, int nmedium, int nlarge)
 		{
 			list[i].type = MEDIUM;
 			list[i].is_alive = 1;
-			list[i].radius = 20;
+			list[i].radius = 40;
 			set_random_astroid_start_position(&list[i]);
 			set_random_velocity(&list[i]);
 			--nmedium;
@@ -45,7 +47,7 @@ struct AstroidArray allocate_astroids(int nsmall, int nmedium, int nlarge)
 		{
 			list[i].type = LARGE;
 			list[i].is_alive = 1;
-			list[i].radius = 40;
+			list[i].radius = 80;
 			set_random_astroid_start_position(&list[i]);
 			set_random_velocity(&list[i]);
 			--nlarge;
@@ -75,20 +77,25 @@ static void set_random_velocity(struct Astroid* astroid)
 	switch(astroid->type)
 	{
 	case SMALL:
-		astroid->velocity.x = (random() % SMALL_ASTROID_SPEED) + 1;
-		astroid->velocity.y = (random() % SMALL_ASTROID_SPEED) + 1;
+		astroid->velocity = random_velocity(SMALL_ASTROID_SPEED); 
 		break;
 	case MEDIUM:
-		astroid->velocity.x = (random() % MEDIUM_ASTROID_SPEED) + 1;
-		astroid->velocity.y = (random() % MEDIUM_ASTROID_SPEED) + 1;
+		astroid->velocity = random_velocity(MEDIUM_ASTROID_SPEED); 
 		break;
 	case LARGE:
-		astroid->velocity.x = (random() % LARGE_ASTROID_SPEED) + 1;
-		astroid->velocity.y = (random() % LARGE_ASTROID_SPEED) + 1;
+		astroid->velocity = random_velocity(LARGE_ASTROID_SPEED); 
 		break;
 	case DUMMY:
 		break;
 	}
+}
+
+Vec2 random_velocity(int max_component)
+{
+	Vec2 vec;
+	vec.x = randomRangeNZ(-max_component, max_component);	
+	vec.y = randomRangeNZ(-max_component, max_component);	
+	return vec;
 }
 
 int get_astroid_colliding_at(int x, int y, const struct AstroidArray* array)
@@ -102,11 +109,21 @@ int is_astroid_colliding_at(int x, int y, const struct Astroid* astroid)
 	return 0;
 }
 
-void explode_astroid(int id, const struct AstroidArray* list)
+void explodeAstroid(int id, const struct AstroidArray* list)
 {
 }
 
-void deallocate_astroids(struct AstroidArray* astroids)
+void updateAstroids(const struct AstroidArray* astroids)
+{
+	for (int i = 0; i < astroids->length; ++i) {
+		if (astroids->array[i].is_alive)
+			astroids->array[i].position.x += astroids->array[i].velocity.x;
+			astroids->array[i].position.y += astroids->array[i].velocity.y;
+			wrapPosition(&(astroids->array[i].position));
+	}
+}
+
+void deallocateAstroids(struct AstroidArray* astroids)
 {
 	free(astroids->array);
 }
