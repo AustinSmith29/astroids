@@ -2,6 +2,7 @@
 
 #include "ship.h"
 #include "bullet.h"
+#include "astroid.h"
 
 void drawShip(const struct Ship *ship, int radius, SDL_Renderer *renderer)
 {
@@ -41,6 +42,22 @@ void drawBullets(const struct Bullet *bullets, SDL_Renderer *renderer)
 				4, 
 				4 
 			}; 
+			SDL_RenderFillRect(renderer, &rect);
+		}
+	}
+}
+
+void drawAstroids(const struct AstroidArray *astroids, SDL_Renderer *renderer)
+{
+	for (int i = 0; i < astroids->length; ++i) {
+		if (astroids->array[i].is_alive)
+		{
+			SDL_Rect rect = {
+				astroids->array[i].position.x,
+				astroids->array[i].position.y,
+				astroids->array[i].radius,
+				astroids->array[i].radius
+			};
 			SDL_RenderFillRect(renderer, &rect);
 		}
 	}

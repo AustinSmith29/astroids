@@ -1,5 +1,6 @@
 #include "ship.h"
 #include "bullet.h"
+#include "astroid.h"
 #include "render.h"
 
 #include <SDL2/SDL.h>
@@ -17,6 +18,7 @@ int main()
 	ship->position = createVec2(320.0f, 240.0f);
 	ship->direction = createVec2(0.0f, 1.0f);
 	struct Bullet shipBullets[MAX_BULLETS];
+	struct AstroidArray astroidArray = allocate_astroids(0, 0, 3);
 	int quit = 0;
 	SDL_Event e;
 	const Uint32 FPS = 60;
@@ -56,6 +58,7 @@ int main()
 		SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 		drawShip(ship, 16, renderer);
 		drawBullets(shipBullets, renderer);
+		drawAstroids(&astroidArray, renderer);
 		SDL_RenderPresent(renderer);
 
 		Uint32 time = SDL_GetTicks() - ticks;
@@ -63,6 +66,7 @@ int main()
 			SDL_Delay((1000 / FPS) - time);
 	}
 	destroyShip(ship);
+	deallocate_astroids(&astroidArray);
 	SDL_Quit();
 	return 0;
 }
