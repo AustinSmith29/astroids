@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-static const float ROTATE_INC = 3.14159f/12.f;
+static const float ROTATE_INC = 3.14159f/24.f;
 static const float ACCELERATE = 0.1f;
 static const float MAX_SPEED = 7.0f;
 
