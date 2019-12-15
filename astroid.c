@@ -10,7 +10,7 @@ static const int LARGE_ASTROID_SPEED = 1;
 
 static void set_random_astroid_start_position(struct Astroid* astroid);
 static void set_random_velocity(struct Astroid* astroid);
-static int is_astroid_colliding_at(int x, int y, const struct Astroid* astroid);
+static int is_astroid_colliding_at(int x, int y, int radius, const struct Astroid* astroid);
 static Vec2 random_velocity(int max_component);
 
 struct AstroidArray allocateAstroids(int nsmall, int nmedium, int nlarge)
@@ -69,7 +69,7 @@ static void set_random_astroid_start_position(struct Astroid* astroid)
 	do {
 		astroid->position.x = random() % 640;
 		astroid->position.y = random() % 480;
-	} while (is_astroid_colliding_at(640/2, 480/2, astroid));
+	} while (is_astroid_colliding_at(640/2, 480/2, 16, astroid));
 }
 
 static void set_random_velocity(struct Astroid* astroid)
@@ -98,15 +98,20 @@ Vec2 random_velocity(int max_component)
 	return vec;
 }
 
-int get_astroid_colliding_at(int x, int y, const struct AstroidArray* array)
+int getAstroidCollidingAt(int x, int y, int radius, const struct AstroidArray* array)
 {
-	return 0;
+	for (int i = 0; i < array->length; ++i) {
+		if (array->array[i].is_alive && 
+		    is_astroid_colliding_at(x, y, radius, &(array->array[i])))
+			return i;
+	}
+	return -1;
 }
 
-// TODO: Implement this
-int is_astroid_colliding_at(int x, int y, const struct Astroid* astroid)
+int is_astroid_colliding_at(int x, int y, int radius, const struct Astroid* astroid)
 {
-	return 0;
+	Vec2 point = {x, y};
+	return isCollision(&point, radius, &astroid->position, astroid->radius);	
 }
 
 void explodeAstroid(int id, const struct AstroidArray* list)

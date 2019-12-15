@@ -3,7 +3,6 @@
 
 #include "vector.h"
 
-
 struct Astroid
 {
 	int id;
@@ -21,7 +20,8 @@ struct AstroidArray
 };
 
 struct AstroidArray allocateAstroids(int nsmall, int nmedium, int nlarge);
-int getAstroidCollidingAt(int x, int y, const struct AstroidArray* astroids);
+// Returns -1 if no collision detected.
+int getAstroidCollidingAt(int x, int y, int radius, const struct AstroidArray* astroids);
 void explodeAstroid(int id, const struct AstroidArray* astroids);
 void updateAstroids(const struct AstroidArray* astroids);
 void deallocateAstroids(struct AstroidArray* astroids);

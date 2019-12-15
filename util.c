@@ -19,6 +19,11 @@ void wrapPosition(struct Vec2* position)
 		position->y = SCREEN_HEIGHT;
 }
 
+int max(int a, int b)
+{
+	return (a >= b) ? a : b;
+}
+
 int randomRangeNZ(int low, int high)
 {
 	int val = (random() % (high- low + 1)) + low;
@@ -30,4 +35,17 @@ int randomRangeNZ(int low, int high)
 			--val;
 	}
 	return val;
+}
+
+int isCollision(const struct Vec2* aPos,
+		int aRadius,
+		const struct Vec2* bPos,
+		int bRadius)
+{
+	Vec2 diff = sub(bPos, aPos);
+	float m = mag(&diff);
+	int radius = max(aRadius, bRadius);
+	if (radius >= m)
+		return 1;
+	return 0;
 }

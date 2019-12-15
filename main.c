@@ -5,6 +5,7 @@
 
 #include <SDL2/SDL.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 int main()
 {
@@ -22,6 +23,7 @@ int main()
 	int quit = 0;
 	SDL_Event e;
 	const Uint32 FPS = 60;
+	int rValue = 255;
 
 	while (!quit)
 	{
@@ -53,11 +55,21 @@ int main()
 		shipMove(ship, 1.0f);
 		updateBullets(shipBullets);
 		updateAstroids(&astroidArray);
+
+		if (getAstroidCollidingAt(ship->position.x, ship->position.y, 16, &astroidArray) >= 0)
+		{
+			rValue = 0;
+		}
+		else
+		{
+			rValue = 255;
+		}
 		//Clear Screen
 		SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
 		SDL_RenderClear(renderer);
 		SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 		drawShip(ship, 16, renderer);
+		drawCircle(ship->position.x, ship->position.y, 16, rValue, 255, 255, 255, renderer);
 		drawBullets(shipBullets, renderer);
 		drawAstroids(&astroidArray, renderer);
 		SDL_RenderPresent(renderer);
