@@ -3,15 +3,22 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 static const int SMALL_ASTROID_SPEED = 5;
 static const int MEDIUM_ASTROID_SPEED = 3;
 static const int LARGE_ASTROID_SPEED = 1;
 
-static void set_random_astroid_start_position(struct Astroid* astroid);
+static const int SMALL_IN_MEDIUM = 3;
+static const int SMALL_IN_LARGE = 6;
+
+static void init_astroid(Vec2* position, int type, struct Astroid* astroid);
+static Vec2 get_random_astroid_start_position();
 static void set_random_velocity(struct Astroid* astroid);
 static int is_astroid_colliding_at(int x, int y, int radius, const struct Astroid* astroid);
 static Vec2 random_velocity(int max_component);
+static int firstFreeIndex(const struct AstroidArray* astroids);
+
 
 struct AstroidArray allocateAstroids(int nsmall, int nmedium, int nlarge)
 {
@@ -25,51 +32,67 @@ struct AstroidArray allocateAstroids(int nsmall, int nmedium, int nlarge)
 	for (int i = 0; i < total_small; ++i)
 	{
 		list[i].id = i;
+		Vec2 position = get_random_astroid_start_position();
 		if (nsmall > 0)
 		{
-			list[i].type = SMALL;
-			list[i].is_alive = 1;
-			list[i].radius = 20;
-			set_random_astroid_start_position(&list[i]);
-			set_random_velocity(&list[i]);
+			init_astroid(&position, SMALL, &list[i]);
 			--nsmall;
 		}
 		else if (nmedium > 0)
 		{
-			list[i].type = MEDIUM;
-			list[i].is_alive = 1;
-			list[i].radius = 40;
-			set_random_astroid_start_position(&list[i]);
-			set_random_velocity(&list[i]);
+			init_astroid(&position, MEDIUM, &list[i]);
 			--nmedium;
 		}
 		else if (nlarge > 0)
 		{
-			list[i].type = LARGE;
-			list[i].is_alive = 1;
-			list[i].radius = 80;
-			set_random_astroid_start_position(&list[i]);
-			set_random_velocity(&list[i]);
+			init_astroid(&position, LARGE, &list[i]);
 			--nlarge;
 		}
 		else 
 		{
-			list[i].type = DUMMY;
-			list[i].is_alive = 0; 
-			list[i].radius = 0;
+			init_astroid(&position, DUMMY, &list[i]);
 		}
 	}
 	struct AstroidArray array = { list, total_small };
 	return array;
 }
 
-static void set_random_astroid_start_position(struct Astroid* astroid)
+static void init_astroid(Vec2* position, int type, struct Astroid* astroid)
 {
+	memset(astroid, 0, sizeof(struct Astroid));
+	astroid->position = *position;
+	astroid->type = type;
+	astroid->is_alive = 1;
+	set_random_velocity(astroid);
+	switch (type)
+	{
+		case SMALL:
+			astroid->radius = 20;
+			break;
+		case MEDIUM:
+			astroid->radius = 40;
+			break;
+		case LARGE:
+			astroid->radius = 80;
+			break;
+		case DUMMY:
+			astroid->radius = 0;
+			astroid->is_alive = 0;
+			break;
+	}
+
+}
+
+static Vec2 get_random_astroid_start_position()
+{
+	Vec2 playerZoneCenter = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
+	Vec2 position;
 	// Assumes the player starts in the middle of the screen.
 	do {
-		astroid->position.x = random() % 640;
-		astroid->position.y = random() % 480;
-	} while (is_astroid_colliding_at(640/2, 480/2, 16, astroid));
+		position.x = random() % SCREEN_WIDTH;
+		position.y = random() % SCREEN_HEIGHT;
+	} while (isCollision(&playerZoneCenter, 64, &position, 80));
+	return position;
 }
 
 static void set_random_velocity(struct Astroid* astroid)
@@ -114,8 +137,40 @@ int is_astroid_colliding_at(int x, int y, int radius, const struct Astroid* astr
 	return isCollision(&point, radius, &astroid->position, astroid->radius);	
 }
 
-void explodeAstroid(int id, const struct AstroidArray* list)
+static int firstFreeIndex(const struct AstroidArray* astroids)
 {
+	for (int i = 0; i < astroids->length; ++i) {
+		if (astroids->array[i].type == DUMMY) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+void explodeAstroid(int id, struct AstroidArray* list)
+{
+	struct Astroid* astroid = &(list->array[id]);
+	astroid->is_alive = 0;
+	switch(astroid->type)
+	{
+		case DUMMY:
+		case SMALL:
+			break;
+		case MEDIUM:
+			for (int i = 0; i < 3; ++i)
+			{
+				int index = firstFreeIndex(list);
+				init_astroid(&astroid->position, SMALL, &list->array[index]);
+			}
+			break;
+		case LARGE:
+			for (int i = 0; i < 2; ++i)
+			{
+				int index = firstFreeIndex(list);
+				init_astroid(&astroid->position, MEDIUM, &list->array[index]);
+			}
+			break;
+	}
 }
 
 void updateAstroids(const struct AstroidArray* astroids)

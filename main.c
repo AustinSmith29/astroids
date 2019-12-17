@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 int main()
 {
@@ -19,6 +20,7 @@ int main()
 	ship->position = createVec2(320.0f, 240.0f);
 	ship->direction = createVec2(0.0f, 1.0f);
 	struct Bullet shipBullets[MAX_BULLETS];
+	memset(&shipBullets, 0, sizeof(struct Bullet) * MAX_BULLETS);
 	struct AstroidArray astroidArray = allocateAstroids(0, 0, 3);
 	int quit = 0;
 	SDL_Event e;
@@ -56,6 +58,18 @@ int main()
 		updateBullets(shipBullets);
 		updateAstroids(&astroidArray);
 
+		for (int i = 0; i < MAX_BULLETS; ++i) {
+			struct Bullet* bullet = &shipBullets[i];
+			if (!bullet->alive)
+				continue;
+			int id = getAstroidCollidingAt(bullet->position.x, bullet->position.y, 4, &astroidArray);
+			if (id >= 0) {
+				bullet->alive = 0;
+				explodeAstroid(id, &astroidArray);
+			}
+		}
+
+		
 		if (getAstroidCollidingAt(ship->position.x, ship->position.y, 16, &astroidArray) >= 0)
 		{
 			rValue = 0;
